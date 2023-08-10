@@ -6,11 +6,11 @@ export INSTANCE_PROMPT="sofa"
 export MODEL_DIR="logs/sofa"
 
 # preprocess data
-python preprocess.py --instance_data_dir $INSTANCE_DIR \
+python src/preprocess.py --instance_data_dir $INSTANCE_DIR \
                      --instance_prompt $INSTANCE_PROMPT
 
 # CUDA_VISIBLE_DEVICES=0
-accelerate launch --num_processes 1 train.py \
+accelerate launch --num_processes 1 src/train.py \
   --pretrained_model_name_or_path=$MODEL_NAME  \
   --instance_data_dir=$INSTANCE_DIR \
   --output_dir=$MODEL_DIR \
@@ -23,7 +23,7 @@ accelerate launch --num_processes 1 train.py \
   --lr_warmup_steps=0 \
   --max_train_steps=1000
 
-python inference.py --image_path $Test_DIR \
+python src/inference.py --image_path $Test_DIR \
                     --model_path $MODEL_DIR \
                     --out_path $OUT_DIR \
                     --instance_prompt $INSTANCE_PROMPT

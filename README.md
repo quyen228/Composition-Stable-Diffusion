@@ -93,6 +93,11 @@ using end-to-end run_sd.sh.
 ```bash
 bash run.sh
 ```
+### Demo with gradio UI
+```bash
+bash run_gradio.sh
+```
+
 
 ### GPU Memory
 We tested the code on RTX3090 GPU. If there is Out-of-Memory error, please refer to for low memory training: 

@@ -1,5 +1,5 @@
 __pycache__/
 logs
-data/*/*.png
-data/*/*.txt
+data/*/*/*.png
+data/*/*/*.txt
 out

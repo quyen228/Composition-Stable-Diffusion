@@ -1,6 +1,7 @@
 import argparse
 import hashlib
 import math
+import re
 import os
 import random
 from pathlib import Path
@@ -279,7 +280,8 @@ class DreamBoothDataset(Dataset):
         if not self.instance_data_root.exists():
             raise ValueError("Instance images root doesn't exists.")
 
-        self.instance_images_path = list(Path(instance_data_root).glob("*.jpg"))
+        self.instance_images_path = list(Path(instance_data_root).glob("origin/*"))        
+        
         self.num_instance_images = len(self.instance_images_path)
         self.instance_prompt = instance_prompt
         self._length = self.num_instance_images
@@ -307,8 +309,8 @@ class DreamBoothDataset(Dataset):
         if not instance_image.mode == "RGB":
             instance_image = instance_image.convert("RGB")
 
-        # mask
-        instance_mask = Image.open(self.instance_images_path[index % self.num_instance_images].with_suffix('.png'))
+        # mask        
+        instance_mask = Image.open(re.sub(r"\.\w{3}", ".png", str(self.instance_images_path[index % self.num_instance_images]).replace("origin", "mask")))
         instance_mask = instance_mask.filter(ImageFilter.MaxFilter(11)).resize(instance_image.size)
 
         rgba = merge_rgb_mask_to_rgba(instance_image, instance_mask)
@@ -321,13 +323,13 @@ class DreamBoothDataset(Dataset):
         example["instance_images"] = self.image_transforms(instance_image)
         example["PIL_masks"] = instance_mask
 
-        # prompt_path = self.instance_images_path[index % self.num_instance_images].with_suffix('.txt')
+        prompt_path = re.sub(r"\.\w{3}", ".txt", str(self.instance_images_path[index % self.num_instance_images]).replace("origin", "desc"))
         # if os.path.exists(prompt_path):
-        #     with open(prompt_path) as f:
-        #         instance_prompt = f.readline().strip()
-        #     instance_prompt = instance_prompt + ', sks ' +  self.instance_prompt
+        with open(prompt_path) as f:
+            instance_prompt = f.readline().strip()
+        instance_prompt = instance_prompt + ', sks ' +  self.instance_prompt
         # else:
-        instance_prompt = 'a photo with sks ' +  self.instance_prompt
+        #     instance_prompt = 'a photo with sks ' +  self.instance_prompt
         
         example["instance_prompt_ids"] = self.tokenizer(
             instance_prompt,

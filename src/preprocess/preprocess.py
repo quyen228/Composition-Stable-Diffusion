@@ -43,10 +43,10 @@ if __name__ == '__main__':
     model_clipseg = CLIPSegForImageSegmentation.from_pretrained("CIDAS/clipseg-rd64-refined")
     model_clipseg.to(device)
 
-    img_files = glob.glob(os.path.join(args.instance_data_dir, "*.jpg"))
+    img_files = glob.glob(os.path.join(args.instance_data_dir, "origin/*"))
 
     for img_file in tqdm.tqdm(img_files):
-        prompt_path = img_file[:-4] + '.txt'
+        prompt_path = f"{'/'.join(img_file.split('/')[:-2])}/desc/{os.path.basename(img_file)[:-4]}.txt"
 
         image = Image.open(img_file).convert("RGB")
 
@@ -62,4 +62,4 @@ if __name__ == '__main__':
         outputs = model_clipseg(**inputs_clipseg)
         preds = outputs.logits.unsqueeze(0)[0].detach().cpu()
         mask = transforms.ToPILImage()(torch.sigmoid(preds)).convert("L")
-        mask.save(img_file[:-4] + '.png')
+        mask.save(f"{'/'.join(img_file.split('/')[:-2])}/mask/{os.path.basename(img_file)[:-4]}.png")

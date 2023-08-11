@@ -1,24 +1,24 @@
 export MODEL_NAME="runwayml/stable-diffusion-inpainting"
-export INSTANCE_DIR="data/sofa"
-export Test_DIR="data/T-shirt_test"
-export OUT_DIR="out/sofa"
-export INSTANCE_PROMPT="sofa"
-export MODEL_DIR="logs/sofa/checkpoint-1000"
+export INSTANCE_DIR="data/T-shirt2"
+export Test_DIR="test/T-shirt_test"
+export OUT_DIR="out/T-shirt2"
+export INSTANCE_PROMPT="T-shirt"
+export MODEL_DIR="logs/T-shirt2"
 
 # preprocess data
 python src/preprocess/preprocess.py --instance_data_dir $INSTANCE_DIR \
                      --instance_prompt $INSTANCE_PROMPT
 
-# CUDA_VISIBLE_DEVICES=0
-accelerate launch --num_processes 1 src/train/train_lora.py \
+CUDA_VISIBLE_DEVICES=0, 1
+accelerate launch --num_processes 2 src/train/train_lora.py \
   --pretrained_model_name_or_path=$MODEL_NAME  \
   --instance_data_dir=$INSTANCE_DIR \
   --output_dir=$MODEL_DIR \
   --instance_prompt=$INSTANCE_PROMPT \
-  --resolution=512 \
+  --resolution=256 \
   --train_batch_size=1 \
-  --learning_rate=1e-4 \
-  --max_train_steps=2000 \
+  --learning_rate=1e-6 \
+  --max_train_steps=5000 \
   --checkpointing_steps 1000
 
 python src/inference/inference_lora.py --image_path $Test_DIR \

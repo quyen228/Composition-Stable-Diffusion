@@ -8,25 +8,11 @@ import gradio as gr
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Simple example of preprocessing daa.")
-    parser.add_argument(
-        "--image_path",
-        type=str,
-        required=True,
-        help="Path to source directory.",
-    )
 
     parser.add_argument(
-        "--instance_prompt",
-        type=str,
-        required=True,
-        help="Path to output directory.",
-    )
-
-    parser.add_argument(
-        "--prompt",
-        type=str,
-        required=True,
-        help="Prompt.",
+        "--model_path",
+        type=str,        
+        help="Model path",
     )
 
     args = parser.parse_args()
@@ -61,6 +47,9 @@ if __name__ == '__main__':
     model_name = "runwayml/stable-diffusion-inpainting"
     pipe = StableDiffusionInpaintPipeline.from_pretrained(model_name)    
     pipe = pipe.to(device)
+    if args.model_path:
+        pipe.scheduler = DDPMScheduler.from_config(pipe.scheduler.config)
+        pipe.unet.load_attn_procs(args.model_path)
 
     # os.makedirs(f'{args.out_path}', exist_ok=True)
 
@@ -68,27 +57,21 @@ if __name__ == '__main__':
     processor_clipseg = CLIPSegProcessor.from_pretrained("CIDAS/clipseg-rd64-refined")
     model_clipseg = CLIPSegForImageSegmentation.from_pretrained("CIDAS/clipseg-rd64-refined")
     model_clipseg.to(device)
-
     
-    # out_img = inference_lora(args.image_path, args.instance_prompt, args.prompt)
 
     with gr.Blocks() as demo:
         gr.Markdown("Inpainting image with image and prompt")
-        # with gr.Tab("Non Fine-tune"):
-        # Define button
-        image_file = gr.Image(type="filepath", label="Input Image")
-        instance_prompt = gr.Textbox(label="Instance Prompt")    
-        prompt = gr.Textbox(label="Prompt")
-        out_img = gr.Image(type="pil", show_download_button=True, label="Output Image")
-
+        instance_prompt = gr.Textbox(label="Instance Prompt", value="sofa")    
+        prompt = gr.Textbox(label="Prompt", value="a photo with sks sofa")
+        
+        with gr.Row():
+            # Define button
+            image_file = gr.Image(type="filepath", label="Input Image", value="/home/tndquyen/Documents/Composition-Stable-Diffusion/test/sofa_test/H-5168-12_8c8cc93e-163e-47a6-b8d0-4d3253f0b86b_900x.jpg")
+            out_img = gr.Image(type="pil", show_download_button=True, label="Output Image")            
+            
         inpating_button = gr.Button("Inpanting Image")    
         # Click action
-        inpating_button.click(inference_lora, inputs=[image_file, instance_prompt, prompt], outputs=out_img) 
-
-        # with gr.Tab("Fine-tune"):
-        #     file_output = gr.Image()
-        #     upload_button = gr.UploadButton("Click to Upload a File", file_types=["image"], file_count="multiple")
-        #     upload_button.upload(upload_image, upload_button, file_output)
+        inpating_button.click(inference_lora, inputs=[image_file, instance_prompt, prompt], outputs=out_img)         
         
-        demo.launch(share=True, debug=True)
+    demo.launch(share=True, debug=True)
         

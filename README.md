@@ -97,6 +97,8 @@ bash run.sh
 ```bash
 bash run_gradio.sh
 ```
+[![Watch the video](https://i9.ytimg.com/vi/97bEDFLiXNk/mq2.jpg?sqp=CMjp2aYG-oaymwEmCMACELQB8quKqQMa8AEB-AHUBoAC4AOKAgwIABABGEIgTShlMA8%3D&rs=AOn4CLCREqQsPVvt3t8UYgwfntPpOsoReg&retry=4)](https://youtu.be/97bEDFLiXNk)
+
 
 ### GPU Memory
 We tested the code on RTX3090 GPU. If there is Out-of-Memory error, please refer to for low memory training: 
